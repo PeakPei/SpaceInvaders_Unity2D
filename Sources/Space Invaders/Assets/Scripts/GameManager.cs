@@ -1,10 +1,12 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour 
 {
+	private const float GAME_START_DELAY = 3.0f;
+	private const int LIVES_MAX_NUM = 3;
+
 	private static GameManager instance = null;
 	
 	private GameObject PlayerInstance;
@@ -18,7 +20,8 @@ public class GameManager : MonoBehaviour
 	private float gameWidth;
 	public float hBound;
 
-	public bool isGamePaused = true;
+	public bool isGamePaused = false;
+	public bool isGameStartWaitingForDelay = false;
 
 	public GameObject PlayerPrefab;
 	public GameObject EnemiesControllerPrefab;
@@ -35,8 +38,8 @@ public class GameManager : MonoBehaviour
 	public GameObject gameScreen;
 	public GameObject winGameOverScreen;
 	public GameObject pauseScreen;
-	
-	public static GameManager Instance
+    
+    public static GameManager Instance
 	{
 		get 
 		{ 
@@ -71,7 +74,7 @@ public class GameManager : MonoBehaviour
 
 	void Update()
 	{
-		if (Input.GetKeyDown (KeyCode.Escape))
+		if (Input.GetKeyDown (KeyCode.Escape) && gameScreen.activeSelf && !isGameStartWaitingForDelay)
 		{
 			isGamePaused = !isGamePaused;
 			if (EnemiesControllerInstance) EnemiesControllerInstance.GetComponent<EnemiesController>().PauseEnemies (isGamePaused);
@@ -82,7 +85,7 @@ public class GameManager : MonoBehaviour
 	private void ResetGame ()
 	{
 		score = 0;
-		lives = 3;
+		lives = LIVES_MAX_NUM;
 
 		UpdateScore ();
 		UpdateLives();
@@ -94,9 +97,12 @@ public class GameManager : MonoBehaviour
 
 	IEnumerator StartNewGame ()
 	{
-		yield return new WaitForSeconds (3.0f);
+		isGameStartWaitingForDelay = isGamePaused = true;
 
-		isGamePaused = false;
+		yield return new WaitForSeconds (GAME_START_DELAY);
+
+		isGameStartWaitingForDelay = isGamePaused = false;
+
 		EnemiesControllerInstance.GetComponent<EnemiesController>().StartShooting ();
 		EnemiesControllerInstance.GetComponent<EnemiesController>().MotherShipAppearence();
 	}
@@ -162,7 +168,7 @@ public class GameManager : MonoBehaviour
 
 	public void EndGame (bool isWin)
 	{
-		isGamePaused = true;
+		isGamePaused = false;
 
 		startScreen.SetActive(false);
 		gameScreen.SetActive(false);

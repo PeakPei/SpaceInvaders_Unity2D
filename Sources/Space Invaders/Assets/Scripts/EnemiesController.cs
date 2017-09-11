@@ -4,13 +4,16 @@ using UnityEngine;
 
 public class EnemiesController : MonoBehaviour 
 {
-	private int lines = 6;
-	private int enemiesPerLine = 6;
-	private const float MOTHERSHIP_INTERVAL = 4.0f;
-
 	private const float H_GAP = 0.8f;
 	private const float V_GAP = 0.7f;
+	private const float MOTHERSHIP_INTERVAL = 4.0f;
+	private const float MOTHERSHIP_SPEED_DELTA = 1.5f;
+	private const int SPEED_FRAMES_DELTA = 25;	
+	private const int ENEMIES_TYPE_1_LINES_NUM = 2;
+	private const int ENEMIES_TYPE_2_LINES_NUM = 2;
 	
+	private int lines = 6;
+	private int enemiesPerLine = 6;
 	private int frameCounter = 0;
 	private int speed = 15;
 	private float shootingInterval = 2.0f;
@@ -40,7 +43,7 @@ public class EnemiesController : MonoBehaviour
 		if (gameObject.transform.childCount == 0 && !MotherShip)
 			GameManager.Instance.EndGame (true);
 
-		if (frameCounter%25 == 0)
+		if (frameCounter%SPEED_FRAMES_DELTA == 0)
 		{
 			transform.Translate (directionVector * speed * Time.deltaTime);
 
@@ -60,7 +63,7 @@ public class EnemiesController : MonoBehaviour
 
 			if (MotherShip) 
 			{
-				MotherShip.transform.Translate (motherShipDirectionVector * speed * 1.5f * Time.deltaTime);
+				MotherShip.transform.Translate (motherShipDirectionVector * speed * MOTHERSHIP_SPEED_DELTA * Time.deltaTime);
 
 				if (MotherShip.transform.position.x > GameManager.Instance.hBound + MotherShip.GetComponent<SpriteRenderer> ().bounds.size.x ||
 					MotherShip.transform.position.x < - (GameManager.Instance.hBound + MotherShip.GetComponent<SpriteRenderer> ().bounds.size.x))
@@ -83,9 +86,9 @@ public class EnemiesController : MonoBehaviour
 		{
 			GameObject prefab;
 
-			if (i < enemiesPerLine * 2)
+			if (i < enemiesPerLine * ENEMIES_TYPE_1_LINES_NUM)
 				prefab = Enemy1Prefab;
-			else if (i < enemiesPerLine * 4)
+			else if (i < enemiesPerLine * (ENEMIES_TYPE_1_LINES_NUM + ENEMIES_TYPE_2_LINES_NUM))
 				prefab = Enemy2Prefab;
 			else
 			 	prefab = Enemy3Prefab;
