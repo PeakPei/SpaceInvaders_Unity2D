@@ -7,7 +7,7 @@ public class PlayerBullet : Bullet
 		directionVector = Vector2.up;
 	}
 
-	protected override void OnTriggerEnter2D(Collider2D other)
+	protected override void OnTriggerEnter2D (Collider2D other)
 	{
 		if (other.gameObject.CompareTag("Enemy"))
 		{
