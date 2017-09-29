@@ -56,10 +56,11 @@
      <Compile Include="Assets\Scripts\Enemy.cs" />
      <Compile Include="Assets\Scripts\EnemyBullet.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
+     <Compile Include="Assets\Scripts\Model.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\PlayerBullet.cs" />
  <Reference Include="Facebook.Unity.Settings">
- <HintPath>D:/Dropbox/4love/Programming/Victoria/Unity/2D/SpaceInvaders_Unity2D/Sources/Space Invaders/Library/FacebookSDK/Facebook.Unity.Settings.dll</HintPath>
+ <HintPath>D:/Dropbox/4love/Programming/Victoria/Unity/2D/Space Invaders/Sources/Space Invaders/Library/FacebookSDK/Facebook.Unity.Settings.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>

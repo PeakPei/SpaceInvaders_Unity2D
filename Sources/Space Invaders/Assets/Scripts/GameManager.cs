@@ -17,9 +17,6 @@ public class GameManager : MonoBehaviour
 
 	private int level = 0;
 
-	private float gameWidth;
-	public float hBound;
-
 	public bool isGamePaused = false;
 	public bool isGameStartWaitingForDelay = false;
 
@@ -57,10 +54,7 @@ public class GameManager : MonoBehaviour
 		{
 			instance = this;
 			DontDestroyOnLoad(gameObject);
-		}		
-
-		gameWidth = (int) Camera.main.orthographicSize * Screen.width / Screen.height * 2;
-		hBound = gameWidth/2;
+		}
 
 		btnStart.onClick.AddListener (ResetGame);
 		btnReStart.onClick.AddListener (ResetGame);

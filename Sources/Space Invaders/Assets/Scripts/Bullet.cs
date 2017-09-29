@@ -2,23 +2,27 @@
 
 public class Bullet : MonoBehaviour 
 {
-	private int speed = 5;
-	private float vBound;
-
+	private int frameCounter = 0;
+	private SpriteRenderer spriteRenderer;
 	protected Vector2 directionVector;
 
 	void Awake ()
 	{
-		vBound = Camera.main.orthographicSize;
+		spriteRenderer = GetComponent<SpriteRenderer>();
 	}
 
 	void Update () 
 	{
-		transform.Translate (directionVector * speed * Time.deltaTime);
+		transform.Translate (directionVector * Model.bulletsSpeed * Time.deltaTime);
 
-		if (transform.position.y >  vBound ||
-			transform.position.y < -vBound)
-			Destroy(gameObject);
+		if (transform.position.y >  Model.VBound ||
+				transform.position.y < -Model.VBound)
+				Destroy(gameObject);
+
+		if (frameCounter%Model.BULLETS_UPDATE_FRAMES_DELTA == 0)
+			spriteRenderer.flipY = !spriteRenderer.flipY;
+
+		frameCounter++;
 	}
 
 	protected virtual void OnTriggerEnter2D(Collider2D other){}

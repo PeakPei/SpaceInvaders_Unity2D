@@ -7,9 +7,9 @@ public class EnemiesController : MonoBehaviour
 	private const float H_GAP = 0.8f;
 	private const float V_GAP = 0.7f;
 	private const float MOTHERSHIP_INTERVAL = 4.0f;
-	private const float MOTHERSHIP_SPEED_DELTA = 1.5f;
-	private const int SPEED_FRAMES_DELTA = 25;	
-	private const int ENEMIES_TYPE_1_LINES_NUM = 2;
+	private const float MOTHERSHIP_SPEED_DELTA = 1.5f;	
+	private const int ENEMIES_TYPE_4_LINES_NUM = 1;
+	private const int ENEMIES_TYPE_3_LINES_NUM = 1;
 	private const int ENEMIES_TYPE_2_LINES_NUM = 2;
 	
 	private int lines = 6;
@@ -30,6 +30,7 @@ public class EnemiesController : MonoBehaviour
 	public GameObject Enemy1Prefab;
 	public GameObject Enemy2Prefab;
 	public GameObject Enemy3Prefab;
+	public GameObject Enemy4Prefab;
 
 	void Awake () 
 	{
@@ -43,19 +44,20 @@ public class EnemiesController : MonoBehaviour
 		if (gameObject.transform.childCount == 0 && !MotherShip)
 			GameManager.Instance.EndGame (true);
 
-		if (frameCounter%SPEED_FRAMES_DELTA == 0)
+		if (frameCounter%Model.ENEMIES_UPDATE_FRAMES_DELTA == 0)
 		{
 			transform.Translate (directionVector * speed * Time.deltaTime);
 
 			float myWidth = (enemiesPerLine - 1) * H_GAP;
 
-			if (transform.position.x > GameManager.Instance.hBound - myWidth/2 ||
-				transform.position.x < - (GameManager.Instance.hBound - myWidth/2))
+			if (transform.position.x > Model.HBound - myWidth/2 ||
+				transform.position.x < - (Model.HBound - myWidth/2))
 			{
 				transform.position = new Vector2 (transform.position.x, transform.position.y - V_GAP);
 				directionVector.x *= -1;
 				speed += 2;
 				shootingInterval -= 0.2f;
+				Model.bulletsSpeed += 0.2f;
 
 				if (transform.childCount > 0 && (transform.GetChild(transform.childCount - 1).transform.position.y + transform.position.y < - Camera.main.orthographicSize))
 					GameManager.Instance.EndGame (false);	
@@ -65,13 +67,17 @@ public class EnemiesController : MonoBehaviour
 			{
 				MotherShip.transform.Translate (motherShipDirectionVector * speed * MOTHERSHIP_SPEED_DELTA * Time.deltaTime);
 
-				if (MotherShip.transform.position.x > GameManager.Instance.hBound + MotherShip.GetComponent<SpriteRenderer> ().bounds.size.x ||
-					MotherShip.transform.position.x < - (GameManager.Instance.hBound + MotherShip.GetComponent<SpriteRenderer> ().bounds.size.x))
+				if (MotherShip.transform.position.x > Model.HBound + MotherShip.GetComponent<SpriteRenderer> ().bounds.size.x ||
+					MotherShip.transform.position.x < - (Model.HBound + MotherShip.GetComponent<SpriteRenderer> ().bounds.size.x))
 				{
 					CancelInvoke ("MotherShipMovement");
-					CancelInvoke ("MotherShipShooting");
 					Destroy (MotherShip);
 				}
+			}
+			
+			for (int i = 0; i < gameObject.transform.childCount; i++)
+			{
+				gameObject.transform.GetChild(i).GetComponent<Enemy>().UpdateSprite();
 			}
 		}
 
@@ -86,12 +92,14 @@ public class EnemiesController : MonoBehaviour
 		{
 			GameObject prefab;
 
-			if (i < enemiesPerLine * ENEMIES_TYPE_1_LINES_NUM)
-				prefab = Enemy1Prefab;
-			else if (i < enemiesPerLine * (ENEMIES_TYPE_1_LINES_NUM + ENEMIES_TYPE_2_LINES_NUM))
-				prefab = Enemy2Prefab;
+			if (i < enemiesPerLine * ENEMIES_TYPE_4_LINES_NUM)
+				prefab = Enemy4Prefab;
+			else if (i < enemiesPerLine * (ENEMIES_TYPE_4_LINES_NUM + ENEMIES_TYPE_3_LINES_NUM))
+				prefab = Enemy3Prefab;
+			else if (i < enemiesPerLine * (ENEMIES_TYPE_4_LINES_NUM + ENEMIES_TYPE_3_LINES_NUM + ENEMIES_TYPE_2_LINES_NUM))
+			 	prefab = Enemy2Prefab;
 			else
-			 	prefab = Enemy3Prefab;
+				prefab = Enemy1Prefab;
 
 			Instantiate (prefab, new Vector2 (startX + i%enemiesPerLine * H_GAP, startY - i/enemiesPerLine * V_GAP), Quaternion.identity, gameObject.transform);
 		}
@@ -127,33 +135,18 @@ public class EnemiesController : MonoBehaviour
 			motherShipDirectionVector = dirRand > 0 ? Vector2.right : Vector2.left;
 			
 			MotherShip = Instantiate (MotherShipPrefab, 
-									 new Vector2 (dirRand > 0 ? -GameManager.Instance.hBound : GameManager.Instance.hBound, 
+									 new Vector2 (dirRand > 0 ? -Model.HBound : Model.HBound, 
 									 			  gameObject.transform.GetChild (0).transform.position.y + V_GAP), 
 									 Quaternion.identity);
-
-			CancelInvoke ("MotherShipShooting");
-			InvokeRepeating ("MotherShipShooting", shootingInterval, shootingInterval);
 		}
-	}
-
-	public void MotherShipShooting ()
-	{
-		if (MotherShip) 
-			MotherShip.GetComponent<Enemy> ().canShoot = true;
 	}
 
 	public void PauseEnemies (bool isPaused)
 	{
 		if (isPaused)
-		{
-			CancelInvoke ("MotherShipShooting");
 			CancelInvoke ("Shooting");
-		}
 		else
-		{
-			InvokeRepeating ("MotherShipShooting", shootingInterval, shootingInterval);
 			InvokeRepeating ("Shooting", shootingInterval, shootingInterval);
-		}
 	}
 
 	public void DestroyAllEnemiesAndBullets ()

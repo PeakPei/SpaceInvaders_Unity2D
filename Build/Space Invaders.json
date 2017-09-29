@@ -1,0 +1,9 @@
+{
+"TOTAL_MEMORY": 268435456,
+"dataUrl": "Space Invaders.data.unityweb",
+"asmCodeUrl": "Space Invaders.asm.code.unityweb",
+"asmMemoryUrl": "Space Invaders.asm.memory.unityweb",
+"asmFrameworkUrl": "Space Invaders.asm.framework.unityweb",
+"splashScreenStyle": "Dark",
+"backgroundColor": "#231F20"
+}
