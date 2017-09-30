@@ -15,4 +15,6 @@ public static class Model : object
 	public static float VBound { get { return Camera.main.orthographicSize;}}
 
 	public static float HBound { get { return (int) Camera.main.orthographicSize * Screen.width / Screen.height;}}
+
+	public static Vector2 PLAYERS_START_POS { get { return new Vector2(0f, -(VBound - 1));}}
 }

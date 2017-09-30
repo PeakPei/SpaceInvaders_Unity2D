@@ -12,7 +12,7 @@ public class EnemyBullet : Bullet
 		if (other.gameObject.CompareTag("Player"))
 		{
 			GameManager.Instance.OnPlayerHit();
-			Destroy(other.gameObject);			
+			
 			Destroy(gameObject);
 		}
 	}

@@ -3,13 +3,33 @@ using System.Collections;
 
 public class Player : MonoBehaviour 
 {
+	private const float EXPLOSION_TIME_OUT = 0.5f;
+	private const float EXPLOSION_UPDATE_FRAMES_DELTA = 5;
+	private bool isExplode = false;
 	private int speed = 5;
+	private int frameCounter = 0;
+	private SpriteRenderer spriteRenderer;
 
+	public Sprite RegSprite;
+	public Sprite ExplosionSprite;
 	public GameObject Bullet;
+
+	void Awake ()
+	{
+		spriteRenderer = GetComponent<SpriteRenderer>();
+	}
 	
 	void Update () 
 	{
 		if (GameManager.Instance.isGamePaused) return;
+
+		if (isExplode)
+		{
+			if (frameCounter%EXPLOSION_UPDATE_FRAMES_DELTA == 0)
+				spriteRenderer.flipX = !spriteRenderer.flipX;
+			frameCounter++;
+			return;
+		}
 		
 		if 		(Input.GetKey (KeyCode.RightArrow) && transform.position.x < Model.HBound + gameObject.GetComponent<SpriteRenderer>().bounds.size.x/2)
 			transform.Translate (Vector2.right * speed * Time.deltaTime);
@@ -27,4 +47,21 @@ public class Player : MonoBehaviour
 			GameManager.Instance.EndGame (false);
 		}
 	}
+
+	public void Explode ()
+    {
+		StartCoroutine("Explosion");
+    }
+
+	private IEnumerator Explosion ()
+    {
+		isExplode = true;
+        spriteRenderer.sprite = ExplosionSprite;
+
+		yield return new WaitForSeconds(EXPLOSION_TIME_OUT);
+
+		isExplode = false;
+		spriteRenderer.sprite = RegSprite;		
+		gameObject.transform.position = Model.PLAYERS_START_POS;
+    }
 }

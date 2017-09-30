@@ -1,7 +1,10 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 public class Enemy : MonoBehaviour 
 {
+    private const float EXPLOSION_TIME_OUT = 0.5f;
+    private bool isExplode = false;
 	private int currentSpriteID = 0;
 	private SpriteRenderer spriteRenderer;
 
@@ -9,10 +12,11 @@ public class Enemy : MonoBehaviour
 	public bool canShoot = false;
 	public int points;
 
-	public Sprite[] Sprites;	
+	public Sprite[] StatesSprites;
+	public Sprite ExplosionSprite;
 	public GameObject Bullet;
 
-	void Awake ()
+    void Awake ()
 	{
 		spriteRenderer = GetComponent<SpriteRenderer>();
 
@@ -21,7 +25,7 @@ public class Enemy : MonoBehaviour
 	
 	void Update () 
 	{		
-		if (!isMotherShip && canShoot)
+		if (canShoot && !isMotherShip && !isExplode)
 		{
 			Instantiate(Bullet, new Vector2 (gameObject.transform.position.x, gameObject.transform.position.y), Quaternion.identity);
 			canShoot = false;
@@ -30,18 +34,23 @@ public class Enemy : MonoBehaviour
 
 	public void UpdateSprite()
 	{
-		spriteRenderer.sprite = Sprites[currentSpriteID];
+		spriteRenderer.sprite = StatesSprites[currentSpriteID];
 
 		currentSpriteID++;
-		if (currentSpriteID == Sprites.Length) currentSpriteID = 0;
+		if (currentSpriteID == StatesSprites.Length) currentSpriteID = 0;
 	}
 
 	public int GetPoints ()
 	{
 		if (isMotherShip) points = Random.Range(Model.MOTHERSHIP_MIN_POINTS, Model.MOTHERSHIP_MAX_POINTS);
 
-		Debug.Log(points);
-
 		return points;
 	}
+
+    public void Explode ()
+    {
+		isExplode = true;
+		spriteRenderer.sprite = ExplosionSprite;
+		Destroy(gameObject, EXPLOSION_TIME_OUT);
+    }
 }

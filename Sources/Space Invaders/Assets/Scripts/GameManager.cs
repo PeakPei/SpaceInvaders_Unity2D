@@ -113,7 +113,8 @@ public class GameManager : MonoBehaviour
 
 	private void GameSetup ()
 	{
-		InitPlayer ();		
+		PlayerInstance = Instantiate (PlayerPrefab, Model.PLAYERS_START_POS, Quaternion.identity);
+		
 		EnemiesControllerInstance.GetComponent<EnemiesController>().CreateEnemies ();
 
 		startScreen.SetActive(false);
@@ -135,13 +136,6 @@ public class GameManager : MonoBehaviour
 		Lives.text = "LIVES: " + lives;
 	}
 
-	private void InitPlayer ()
-	{
-		PlayerInstance = Instantiate (PlayerPrefab, 
-							new Vector2 (0f, -(Camera.main.orthographicSize - 1)), 
-							Quaternion.identity);
-	}
-
 	public void OnEnemyHit (int points)
 	{
 		score += points;
@@ -154,7 +148,7 @@ public class GameManager : MonoBehaviour
 		{
 			lives--;
 			UpdateLives ();
-			InitPlayer ();
+			PlayerInstance.gameObject.GetComponent<Player>().Explode();
 		}
 		else
 			EndGame (false);

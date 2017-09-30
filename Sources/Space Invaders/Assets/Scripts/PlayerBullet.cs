@@ -12,7 +12,8 @@ public class PlayerBullet : Bullet
 		if (other.gameObject.CompareTag("Enemy"))
 		{
 			GameManager.Instance.OnEnemyHit(other.gameObject.GetComponent<Enemy>().GetPoints());
-			Destroy(other.gameObject);
+			other.gameObject.GetComponent<Enemy>().Explode();
+			
 			Destroy(gameObject);
 		}
 	}
