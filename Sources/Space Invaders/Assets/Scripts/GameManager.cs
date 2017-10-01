@@ -9,13 +9,14 @@ public class GameManager : MonoBehaviour
 
 	private static GameManager instance = null;
 	
-	private GameObject PlayerInstance;
-	private GameObject EnemiesControllerInstance;
-
 	private int score;
 	private int lives;
-
 	private int level = 0;
+
+	private float elapsedSecondsFromLevelStart;
+
+	private GameObject PlayerInstance;
+	private GameObject EnemiesControllerInstance;
 
 	public bool isGamePaused = false;
 	public bool isGameStartWaitingForDelay = false;
@@ -27,14 +28,16 @@ public class GameManager : MonoBehaviour
 	public Button btnReStart;
 	public Button btnReturn;
 
+	public Text CountDown;
 	public Text Score;
 	public Text Lives;
 	public Text WinGameOver;
 	
-	public GameObject startScreen;
-	public GameObject gameScreen;
-	public GameObject winGameOverScreen;
-	public GameObject pauseScreen;
+	public GameObject StartScreen;
+	public GameObject GameStartCountDown;
+	public GameObject GameScreen;
+	public GameObject WinGameOverScreen;
+	public GameObject PauseScreen;
     
     public static GameManager Instance
 	{
@@ -60,19 +63,26 @@ public class GameManager : MonoBehaviour
 		btnReStart.onClick.AddListener (ResetGame);
 		btnReturn.onClick.AddListener(ReturnToNextLevel);
 
-		startScreen.SetActive(true);
-		gameScreen.SetActive(false);
-		winGameOverScreen.SetActive(false);
-		pauseScreen.SetActive (false);
+		StartScreen.SetActive(true);
+		GameStartCountDown.SetActive(false);
+		GameScreen.SetActive(false);
+		WinGameOverScreen.SetActive(false);
+		PauseScreen.SetActive (false);
 	}
 
 	void Update()
 	{
-		if (Input.GetKeyDown (KeyCode.Escape) && gameScreen.activeSelf && !isGameStartWaitingForDelay)
+		if (GameStartCountDown.activeSelf)
+		{
+			CountDown.text = Mathf.Ceil(GAME_START_DELAY - elapsedSecondsFromLevelStart).ToString();
+			CountDown.color = new Color (CountDown.color.r, CountDown.color.g, CountDown.color.b, (GAME_START_DELAY - elapsedSecondsFromLevelStart) / GAME_START_DELAY);
+			elapsedSecondsFromLevelStart += Time.deltaTime;
+		}
+		else if (Input.GetKeyDown (KeyCode.Escape) && GameScreen.activeSelf && !isGameStartWaitingForDelay)
 		{
 			isGamePaused = !isGamePaused;
 			if (EnemiesControllerInstance) EnemiesControllerInstance.GetComponent<EnemiesController>().PauseEnemies (isGamePaused);
-			pauseScreen.SetActive (isGamePaused);
+			PauseScreen.SetActive (isGamePaused);
 		}
 	}
 
@@ -94,6 +104,8 @@ public class GameManager : MonoBehaviour
 		isGameStartWaitingForDelay = isGamePaused = true;
 
 		yield return new WaitForSeconds (GAME_START_DELAY);
+
+		GameStartCountDown.SetActive(false);
 
 		isGameStartWaitingForDelay = isGamePaused = false;
 
@@ -117,10 +129,11 @@ public class GameManager : MonoBehaviour
 		
 		EnemiesControllerInstance.GetComponent<EnemiesController>().CreateEnemies ();
 
-		startScreen.SetActive(false);
-		gameScreen.SetActive(true);
-		winGameOverScreen.SetActive(false);
-		pauseScreen.SetActive (false);
+		StartScreen.SetActive(false);
+		GameStartCountDown.SetActive(true);
+		GameScreen.SetActive(true);
+		WinGameOverScreen.SetActive(false);
+		PauseScreen.SetActive (false);
 
 		StopAllCoroutines();
 		StartCoroutine(StartNewGame());
@@ -157,11 +170,13 @@ public class GameManager : MonoBehaviour
 	public void EndGame (bool isWin)
 	{
 		isGamePaused = false;
+		elapsedSecondsFromLevelStart = 0;
 
-		startScreen.SetActive(false);
-		gameScreen.SetActive(false);
-		winGameOverScreen.SetActive(true);
-		pauseScreen.SetActive (false);
+		StartScreen.SetActive(false);
+		GameStartCountDown.SetActive(false);
+		GameScreen.SetActive(false);
+		WinGameOverScreen.SetActive(true);
+		PauseScreen.SetActive (false);
 
 		btnReturn.gameObject.SetActive(isWin);
 
