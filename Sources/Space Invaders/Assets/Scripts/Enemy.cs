@@ -3,7 +3,10 @@ using System.Collections;
 
 public class Enemy : MonoBehaviour 
 {
+	//Constants
     private const float EXPLOSION_TIME_OUT = 0.5f;
+
+	//Variables
     private bool isExplode = false;
 	private int currentSpriteStateID = 0; //Enemies have two sprite states for "animation" when moving
 	private SpriteRenderer spriteRenderer;
@@ -27,7 +30,7 @@ public class Enemy : MonoBehaviour
 	{		
 		if (canShoot && !isMotherShip && !isExplode)
 		{
-			Instantiate(Bullet, new Vector2 (gameObject.transform.position.x, gameObject.transform.position.y), Quaternion.identity);
+			Instantiate(Bullet, new Vector2 (transform.position.x, transform.position.y), Quaternion.identity);
 			canShoot = false;
 		}
 	}

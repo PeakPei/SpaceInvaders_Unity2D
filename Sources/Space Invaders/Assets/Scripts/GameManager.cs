@@ -4,11 +4,19 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour 
 {
+	//Constants
 	private const float GAME_START_DELAY = 3.0f;
 	private const int LIVES_MAX_NUM = 3;
-
-	private static GameManager instance = null;
+    private const string SCORE_TEXT = "SCORE: ";
+    private const string LIVES_TEXT = "LIVES: ";
+    private const string WIN_TEXT = "YOU WON!\n YOUR SCORE IS: ";
+    private const string GAME_OVER_TEXT = "GAME OVER";
+    private static GameManager instance = null;
 	
+	//Variables
+	private bool isGamePaused = false;
+    private bool isGameStartWaitingForDelay = false;
+
 	private int score;
 	private int lives;
 	private int level = 0;
@@ -18,9 +26,7 @@ public class GameManager : MonoBehaviour
 	private GameObject PlayerInstance;
 	private GameObject EnemiesControllerInstance;
 
-	public bool isGamePaused = false;
-	public bool isGameStartWaitingForDelay = false;
-
+	//Prefabs
 	public GameObject PlayerPrefab;
 	public GameObject EnemiesControllerPrefab;
 
@@ -48,8 +54,10 @@ public class GameManager : MonoBehaviour
 			return instance;
 		}
 	}
-	
-	void Awake()
+
+    public bool IsGamePaused { get {return isGamePaused;} }
+
+    void Awake()
 	{
 		if (instance)
 			DestroyImmediate(gameObject);
@@ -141,12 +149,12 @@ public class GameManager : MonoBehaviour
 
 	private void UpdateScore ()
 	{
-		Score.text = "SCORE: " + score;
+		Score.text = SCORE_TEXT + score;
 	}
 
 	private void UpdateLives ()
 	{
-		Lives.text = "LIVES: " + lives;
+		Lives.text = LIVES_TEXT + lives;
 	}
 
 	public void OnEnemyHit (int points)
@@ -188,8 +196,8 @@ public class GameManager : MonoBehaviour
 		Destroy(EnemiesControllerInstance);
 
 		if (isWin)
-			WinGameOver.text = "YOU WON!\n YOUR SCORE IS: " + score;
+			WinGameOver.text = WIN_TEXT + score;
 		else
-			WinGameOver.text = "GAME OVER";
+			WinGameOver.text = GAME_OVER_TEXT;
 	}
 }

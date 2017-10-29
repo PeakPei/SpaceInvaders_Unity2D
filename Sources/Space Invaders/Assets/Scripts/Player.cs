@@ -3,9 +3,14 @@ using System.Collections;
 
 public class Player : MonoBehaviour 
 {
+	//Constants
 	private const float EXPLOSION_TIME_OUT = 0.5f;
 	private const float EXPLOSION_UPDATE_FRAMES_DELTA = 5;
-	private bool isExplode = false;
+    private const string EXPLOSION = "Explosion";
+    private const string ENEMIES_TAG = "Enemy";
+
+	//Variables
+    private bool isExplode = false;
 	private int speed = 5;
 	private int frameCounter = 0;
 	private SpriteRenderer spriteRenderer;
@@ -21,7 +26,7 @@ public class Player : MonoBehaviour
 	
 	void Update () 
 	{
-		if (GameManager.Instance.isGamePaused) return;
+		if (GameManager.Instance.IsGamePaused) return;
 
 		if (isExplode)
 		{
@@ -31,18 +36,18 @@ public class Player : MonoBehaviour
 			return;
 		}
 		
-		if 		(Input.GetKey (KeyCode.RightArrow) && transform.position.x < Model.HBound + gameObject.GetComponent<SpriteRenderer>().bounds.size.x/2)
+		if 	(Input.GetKey (KeyCode.RightArrow) && transform.position.x < Model.HBound + gameObject.GetComponent<SpriteRenderer>().bounds.size.x/2)
 			transform.Translate (Vector2.right * speed * Time.deltaTime);
 		else if (Input.GetKey (KeyCode.LeftArrow)  && transform.position.x > -(Model.HBound + gameObject.GetComponent<SpriteRenderer>().bounds.size.x/2))
 			transform.Translate (Vector2.left * speed * Time.deltaTime);
 		
 		if (Input.GetKeyDown (KeyCode.Space))
-			Instantiate(Bullet, new Vector2 (gameObject.transform.position.x, gameObject.transform.position.y), Quaternion.identity);
+			Instantiate(Bullet, new Vector2 (transform.position.x, transform.position.y), Quaternion.identity);
 	}	
 
 	void OnTriggerEnter2D (Collider2D other)
 	{
-		if (other.gameObject.CompareTag("Enemy"))
+		if (other.gameObject.CompareTag(ENEMIES_TAG))
 		{
 			GameManager.Instance.EndGame (false);
 		}
@@ -50,7 +55,7 @@ public class Player : MonoBehaviour
 
 	public void Explode ()
     {
-		StartCoroutine("Explosion");
+		StartCoroutine(EXPLOSION);
     }
 
 	private IEnumerator Explosion ()
@@ -62,6 +67,6 @@ public class Player : MonoBehaviour
 
 		isExplode = false;
 		spriteRenderer.sprite = RegSprite;		
-		gameObject.transform.position = Model.PLAYERS_START_POS;
+		transform.position = Model.PLAYERS_START_POS;
     }
 }

@@ -13,16 +13,19 @@ public class Bullet : MonoBehaviour
 
 	void Update () 
 	{
-		transform.Translate (directionVector * Model.bulletsSpeed * Time.deltaTime);
-
-		if (transform.position.y >  Model.VBound ||
-				transform.position.y < -Model.VBound)
-				Destroy(gameObject);
+		transform.Translate (directionVector * Model.bulletsSpeed * Time.deltaTime);	
 
 		if (frameCounter%Model.BULLETS_UPDATE_FRAMES_DELTA == 0)
 			spriteRenderer.flipY = !spriteRenderer.flipY;
 
 		frameCounter++;
+	}
+	
+	void LateUpdate()
+	{
+		if (transform.position.y >  Model.VBound ||
+			transform.position.y < -Model.VBound)
+				Destroy(gameObject);
 	}
 
 	protected virtual void OnTriggerEnter2D(Collider2D other){}
