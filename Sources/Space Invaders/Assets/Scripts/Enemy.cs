@@ -5,7 +5,7 @@ public class Enemy : MonoBehaviour
 {
     private const float EXPLOSION_TIME_OUT = 0.5f;
     private bool isExplode = false;
-	private int currentSpriteID = 0;
+	private int currentSpriteStateID = 0; //Enemies have two sprite states for "animation" when moving
 	private SpriteRenderer spriteRenderer;
 
 	public bool isMotherShip = false;
@@ -34,10 +34,12 @@ public class Enemy : MonoBehaviour
 
 	public void UpdateSprite()
 	{
-		spriteRenderer.sprite = StatesSprites[currentSpriteID];
+		if (isExplode) return;
 
-		currentSpriteID++;
-		if (currentSpriteID == StatesSprites.Length) currentSpriteID = 0;
+		spriteRenderer.sprite = StatesSprites[currentSpriteStateID];
+
+		currentSpriteStateID++;
+		if (currentSpriteStateID == StatesSprites.Length) currentSpriteStateID = 0;
 	}
 
 	public int GetPoints ()
