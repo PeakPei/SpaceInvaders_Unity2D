@@ -274,7 +274,7 @@ public class GameManager : MonoBehaviour
 	{
 		SetGameState(GameState.HIGH_SCORES);
 		
-		HighScores.text = "";
+		HighScores.text = "Loading...";
 
 		PlayersData playersData = JsonUtility.FromJson<PlayersData>(data);
 		playersData.playerDataList.Sort((p1,p2)=>Convert.ToInt32(p1.score).CompareTo(Convert.ToInt32(p2.score)));
