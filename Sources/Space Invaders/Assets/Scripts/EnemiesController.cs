@@ -9,6 +9,8 @@ public class EnemiesController : MonoBehaviour
 	private const float V_GAP = 0.7f;
 	private const float MOTHERSHIP_INTERVAL = 4.0f;
 	private const float MOTHERSHIP_SPEED_DELTA = 1.5f;	
+	private const int START_LINES = 5;
+	private const int START_ENEMIES_PER_LINE = 5;	
 	private const int ENEMIES_TYPE_4_LINES_NUM = 1;
 	private const int ENEMIES_TYPE_3_LINES_NUM = 1;
 	private const int ENEMIES_TYPE_2_LINES_NUM = 2;
@@ -17,8 +19,8 @@ public class EnemiesController : MonoBehaviour
     private const string BULLETS_TAG = "Bullet";
 
 	//Variables
-    private int lines = 6;
-	private int enemiesPerLine = 6;
+    private int lines = START_LINES;
+	private int enemiesPerLine = START_ENEMIES_PER_LINE;
 	private int frameCounter = 0;
 	private int speed = 15;
 	private float shootingInterval = 2.0f;
@@ -51,24 +53,12 @@ public class EnemiesController : MonoBehaviour
 			GameManager.Instance.EndGame (true);
 
 		if (frameCounter%Model.ENEMIES_UPDATE_FRAMES_DELTA == 0)
-		{
+		{			
 			transform.Translate (directionVector * speed * Time.deltaTime);
 
-			float myWidth = (enemiesPerLine - 1) * H_GAP;
-
-			if (transform.position.x > Model.HBound - myWidth/2 ||
-				transform.position.x < - (Model.HBound - myWidth/2))
-			{
-				transform.position = new Vector2 (transform.position.x, transform.position.y - V_GAP);
-				directionVector.x *= -1;
-				speed += 2;
-				shootingInterval -= 0.2f;
-				Model.bulletsSpeed += 0.2f;				
-			}
-
 			if (Mothership) 
-				Mothership.transform.Translate (motherShipDirectionVector * speed * MOTHERSHIP_SPEED_DELTA * Time.deltaTime);
-			
+				Mothership.transform.Translate (motherShipDirectionVector * speed * MOTHERSHIP_SPEED_DELTA * Time.deltaTime);		
+
 			for (int i = 0; i < transform.childCount; i++)
 			{
 				transform.GetChild(i).GetComponent<Enemy>().UpdateSprite();
@@ -80,18 +70,39 @@ public class EnemiesController : MonoBehaviour
 
 	void LateUpdate()
 	{
-		if (transform.childCount > 0 && (transform.GetChild(transform.childCount - 1).transform.position.y + transform.position.y < -Camera.main.orthographicSize))
-					GameManager.Instance.EndGame (false);	
+		if (GameManager.Instance.IsGamePaused) return;
 
-		if (Mothership) 
+		if (frameCounter%Model.ENEMIES_UPDATE_FRAMES_DELTA == 0)
 		{
-			if (Mothership.transform.position.x > Model.HBound + Mothership.GetComponent<SpriteRenderer> ().bounds.size.x ||
-				Mothership.transform.position.x < - (Model.HBound + Mothership.GetComponent<SpriteRenderer> ().bounds.size.x))
+			Bounds bounds = new Bounds(transform.position, Vector3.zero);
+			foreach (Renderer r in GetComponentsInChildren<Renderer>()) 
 			{
-				CancelInvoke (MOTHERSHIP_MOVEMENT);
-				Destroy (Mothership);
+				bounds.Encapsulate(r.bounds);
 			}
-		}
+
+			if (transform.position.x > Model.HBound - bounds.extents.x ||
+				transform.position.x < - (Model.HBound - bounds.extents.x))
+			{
+				transform.position = new Vector2 (transform.position.x, transform.position.y - V_GAP);
+				directionVector.x *= -1;
+				speed += 2;
+				shootingInterval -= 0.2f;
+				Model.bulletsSpeed += 0.2f;				
+			}
+
+			if (transform.childCount > 0 && transform.position.y < - (Model.VBound - bounds.extents.y))
+				GameManager.Instance.EndGame (false);
+
+			if (Mothership) 
+			{
+				if (Mothership.transform.position.x > Model.HBound - Mothership.GetComponent<SpriteRenderer> ().bounds.extents.x ||
+					Mothership.transform.position.x < - (Model.HBound - Mothership.GetComponent<SpriteRenderer> ().bounds.extents.x))
+				{
+					CancelInvoke (MOTHERSHIP_MOVEMENT);
+					Destroy (Mothership);
+				}
+			}
+		}		
 	}
 
 	public void CreateEnemies ()
@@ -175,9 +186,9 @@ public class EnemiesController : MonoBehaviour
 		}
 	}
 
-	public void increaseEnemiesNumber(int level)
+	public void UpdateEnemiesNumber(int level)
 	{
-		enemiesPerLine += level;
-		lines += level;
+		lines = START_LINES + level;
+		enemiesPerLine = START_ENEMIES_PER_LINE + level;
 	}
 }

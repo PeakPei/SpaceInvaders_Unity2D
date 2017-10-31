@@ -13,6 +13,8 @@ public class Bullet : MonoBehaviour
 
 	void Update () 
 	{
+		if (GameManager.Instance.IsGamePaused) return;
+
 		transform.Translate (directionVector * Model.bulletsSpeed * Time.deltaTime);	
 
 		if (frameCounter%Model.BULLETS_UPDATE_FRAMES_DELTA == 0)
@@ -23,6 +25,8 @@ public class Bullet : MonoBehaviour
 	
 	void LateUpdate()
 	{
+		if (GameManager.Instance.IsGamePaused) return;
+		
 		if (transform.position.y >  Model.VBound ||
 			transform.position.y < -Model.VBound)
 				Destroy(gameObject);
