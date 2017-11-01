@@ -174,7 +174,7 @@ public class GameManager : MonoBehaviour
 		if (!PlayerInstance) PlayerInstance = Instantiate (PlayerPrefab, Model.PLAYERS_START_POS, Quaternion.identity, GameScreen.transform);
 		else 				 PlayerInstance.transform.position = Model.PLAYERS_START_POS;
 
-		if (!EnemiesControllerInstance) EnemiesControllerInstance = Instantiate (EnemiesControllerPrefab, Vector2.zero, Quaternion.identity);//, GameScreen.transform
+		if (!EnemiesControllerInstance) EnemiesControllerInstance = Instantiate (EnemiesControllerPrefab, Vector2.zero, Quaternion.identity, GameScreen.transform);
 		else 							EnemiesControllerInstance.transform.position = Vector2.zero;
 
 		SetGameState (GameState.MAIN);
@@ -266,6 +266,9 @@ public class GameManager : MonoBehaviour
 
 	void GetResultsList (string data = "") 
 	{
+		HighScores.text = "Loading...";
+		HighScores.alignment = TextAnchor.MiddleCenter;
+
 		WWW www = new WWW(url);
         StartCoroutine(WaitForRequest(www, ShowResultsList));
     }
@@ -274,7 +277,8 @@ public class GameManager : MonoBehaviour
 	{
 		SetGameState(GameState.HIGH_SCORES);
 		
-		HighScores.text = "Loading...";
+		HighScores.text = "";
+		HighScores.alignment = TextAnchor.UpperLeft;
 
 		PlayersData playersData = JsonUtility.FromJson<PlayersData>(data);
 		playersData.playerDataList.Sort((p1,p2)=>Convert.ToInt32(p1.score).CompareTo(Convert.ToInt32(p2.score)));
@@ -282,7 +286,7 @@ public class GameManager : MonoBehaviour
 
 		for (int i = 0; i < playersData.playerDataList.Count && i < MAX_HIGH_SCORES; i++)
 		{
-			HighScores.text += (i+1) + ".\t" + playersData.playerDataList[i].name + '\t' + playersData.playerDataList[i].score + '\n';
+			HighScores.text += (i+1) + ".\t" + playersData.playerDataList[i].name + "\t\t" + playersData.playerDataList[i].score + '\n';
 		}
     }
 

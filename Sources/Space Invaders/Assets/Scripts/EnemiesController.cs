@@ -52,6 +52,8 @@ public class EnemiesController : MonoBehaviour
 		if (transform.childCount == 0 && !Mothership)
 			GameManager.Instance.EndGame (true);
 
+		frameCounter++;	
+
 		if (frameCounter%Model.ENEMIES_UPDATE_FRAMES_DELTA == 0)
 		{			
 			transform.Translate (directionVector * speed * Time.deltaTime);
@@ -64,8 +66,6 @@ public class EnemiesController : MonoBehaviour
 				transform.GetChild(i).GetComponent<Enemy>().UpdateSprite();
 			}
 		}
-
-		frameCounter++;
 	}
 
 	void LateUpdate()
