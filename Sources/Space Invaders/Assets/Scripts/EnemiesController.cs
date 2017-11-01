@@ -78,10 +78,10 @@ public class EnemiesController : MonoBehaviour
 			foreach (Renderer r in GetComponentsInChildren<Renderer>()) 
 			{
 				bounds.Encapsulate(r.bounds);
-			}
+			}	
 
-			if (transform.position.x > Model.HBound - bounds.extents.x ||
-				transform.position.x < - (Model.HBound - bounds.extents.x))
+			if (bounds.center.x > Model.HBound - bounds.extents.x ||
+				bounds.center.x < - (Model.HBound - bounds.extents.x))
 			{
 				transform.position = new Vector2 (transform.position.x, transform.position.y - V_GAP);
 				directionVector.x *= -1;
@@ -90,7 +90,7 @@ public class EnemiesController : MonoBehaviour
 				Model.bulletsSpeed += 0.2f;				
 			}
 
-			if (transform.childCount > 0 && transform.position.y < - (Model.VBound - bounds.extents.y))
+			if (transform.childCount > 0 && bounds.center.y < Model.PLAYERS_START_POS.y + bounds.extents.y)
 				GameManager.Instance.EndGame (false);
 
 			if (Mothership) 
