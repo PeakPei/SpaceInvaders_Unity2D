@@ -48,7 +48,8 @@ public class GameManager : MonoBehaviour
 	public Text Score;
 	public Text Lives;
 	public Text WinGameOver;
-	public Text HighScores;
+	public Text HighScoresListNames;
+	public Text HighScoresListScores;
 	public InputField Playername;
 	
 	public GameObject StartScreen;
@@ -266,8 +267,9 @@ public class GameManager : MonoBehaviour
 
 	void GetResultsList (string data = "") 
 	{
-		HighScores.text = "Loading...";
-		HighScores.alignment = TextAnchor.MiddleCenter;
+		HighScoresListNames.text = "Loading...";
+		HighScoresListNames.alignment = TextAnchor.MiddleRight;
+		HighScoresListScores.text = "";
 
 		WWW www = new WWW(url);
         StartCoroutine(WaitForRequest(www, ShowResultsList));
@@ -277,8 +279,8 @@ public class GameManager : MonoBehaviour
 	{
 		SetGameState(GameState.HIGH_SCORES);
 		
-		HighScores.text = "";
-		HighScores.alignment = TextAnchor.UpperLeft;
+		HighScoresListNames.text = "";
+		HighScoresListNames.alignment = TextAnchor.MiddleLeft;
 
 		PlayersData playersData = JsonUtility.FromJson<PlayersData>(data);
 		playersData.playerDataList.Sort((p1,p2)=>Convert.ToInt32(p1.score).CompareTo(Convert.ToInt32(p2.score)));
@@ -286,7 +288,8 @@ public class GameManager : MonoBehaviour
 
 		for (int i = 0; i < playersData.playerDataList.Count && i < MAX_HIGH_SCORES; i++)
 		{
-			HighScores.text += (i+1) + ".\t" + playersData.playerDataList[i].name + "\t\t" + playersData.playerDataList[i].score + '\n';
+			HighScoresListNames.text += (i+1) + ".\t" + playersData.playerDataList[i].name + '\n';
+			HighScoresListScores.text += playersData.playerDataList[i].score + '\n';
 		}
     }
 
