@@ -7,7 +7,6 @@ public class Player : MonoBehaviour
 	private const float EXPLOSION_TIME_OUT = 0.5f;
 	private const float EXPLOSION_UPDATE_FRAMES_DELTA = 5;
     private const string EXPLOSION = "Explosion";
-    private const string ENEMIES_TAG = "Enemy";
 
 	//Variables
     private bool isExplode = false;
@@ -36,9 +35,9 @@ public class Player : MonoBehaviour
 			return;
 		}
 		
-		if 	(Input.GetKey (KeyCode.RightArrow) && transform.position.x < Model.HBound + gameObject.GetComponent<SpriteRenderer>().bounds.size.x/2)
+		if 	(Input.GetKey (KeyCode.RightArrow) && transform.position.x + spriteRenderer.bounds.extents.x < Model.HBound)
 			transform.Translate (Vector2.right * speed * Time.deltaTime);
-		else if (Input.GetKey (KeyCode.LeftArrow)  && transform.position.x > -(Model.HBound + gameObject.GetComponent<SpriteRenderer>().bounds.size.x/2))
+		else if (Input.GetKey (KeyCode.LeftArrow)  && transform.position.x - spriteRenderer.bounds.extents.x > -Model.HBound)
 			transform.Translate (Vector2.left * speed * Time.deltaTime);
 		
 		if (Input.GetKeyDown (KeyCode.Space))
@@ -47,7 +46,7 @@ public class Player : MonoBehaviour
 
 	void OnTriggerEnter2D (Collider2D other)
 	{
-		if (other.gameObject.CompareTag(ENEMIES_TAG))
+		if (other.gameObject.CompareTag(Model.ENEMIES_TAG))
 		{
 			GameManager.Instance.EndGame (false);
 		}
