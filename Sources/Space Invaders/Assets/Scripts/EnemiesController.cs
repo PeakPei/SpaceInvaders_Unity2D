@@ -15,8 +15,7 @@ public class EnemiesController : MonoBehaviour
 	private const int ENEMIES_TYPE_3_LINES_NUM = 1;
 	private const int ENEMIES_TYPE_2_LINES_NUM = 2;
     private const string MOTHERSHIP_MOVEMENT = "MotherShipMovement";
-    private const string SHOOTING = "Shooting";
-    private const string BULLETS_TAG = "Bullet";
+    private const string SHOOTING = "Shooting";    
 
 	//Variables
     private int lines = START_LINES;
@@ -31,6 +30,8 @@ public class EnemiesController : MonoBehaviour
 	private Vector2 directionVector;
 	private Vector2 motherShipDirectionVector;
 
+	private Bounds enemiesBounds;
+
 	private GameObject Mothership;
 
 	//Prefabs
@@ -42,7 +43,7 @@ public class EnemiesController : MonoBehaviour
 
 	void Awake () 
 	{
-		directionVector = Vector2.right;
+		directionVector = Random.Range (-1.0f, 1.0f) > 0 ? Vector2.right : Vector2.left;
 	}
 	
 	void Update () 
@@ -74,29 +75,17 @@ public class EnemiesController : MonoBehaviour
 
 		if (frameCounter%Model.ENEMIES_UPDATE_FRAMES_DELTA == 0)
 		{
-			Bounds bounds = new Bounds(transform.position, Vector3.zero);
-			foreach (Renderer r in GetComponentsInChildren<Renderer>()) 
-			{
-				bounds.Encapsulate(r.bounds);
-			}	
+			UpdateBounds ();
 
-			if (bounds.center.x > Model.HBound - bounds.extents.x ||
-				bounds.center.x < - (Model.HBound - bounds.extents.x))
-			{
-				transform.position = new Vector2 (transform.position.x, transform.position.y - V_GAP);
-				directionVector.x *= -1;
-				speed += 2;
-				shootingInterval -= 0.2f;
-				Model.bulletsSpeed += 0.2f;				
-			}
-
-			if (transform.childCount > 0 && bounds.center.y < Model.PLAYERS_START_POS.y + bounds.extents.y)
-				GameManager.Instance.EndGame (false);
+			if (IsEnemiesReachedHBounds()) MoveEnemiesToNextLine ();
+			if (IsEnemiesReachedVBounds()) GameManager.Instance.EndGame (false);
 
 			if (Mothership) 
 			{
-				if (Mothership.transform.position.x > Model.HBound - Mothership.GetComponent<SpriteRenderer> ().bounds.extents.x ||
-					Mothership.transform.position.x < - (Model.HBound - Mothership.GetComponent<SpriteRenderer> ().bounds.extents.x))
+				float mothershipWidth = Mothership.GetComponent<SpriteRenderer> ().bounds.extents.x;
+
+				if (Mothership.transform.position.x + mothershipWidth > Model.HBound ||
+					Mothership.transform.position.x - mothershipWidth < Model.HBound)
 				{
 					CancelInvoke (MOTHERSHIP_MOVEMENT);
 					Destroy (Mothership);
@@ -179,7 +168,7 @@ public class EnemiesController : MonoBehaviour
 			Destroy (transform.GetChild (i-1).gameObject);
 		}
 
-		GameObject[] Bullets = GameObject.FindGameObjectsWithTag (BULLETS_TAG);
+		GameObject[] Bullets = GameObject.FindGameObjectsWithTag (Model.BULLETS_TAG);
 		foreach (GameObject bullet in Bullets)
 		{
 			Destroy (bullet);
@@ -190,5 +179,39 @@ public class EnemiesController : MonoBehaviour
 	{
 		lines = START_LINES + level;
 		enemiesPerLine = START_ENEMIES_PER_LINE + level;
+	}
+
+	public void UpdateBounds ()
+	{
+		enemiesBounds = new Bounds(transform.position, Vector3.zero);
+		
+		foreach (Renderer r in GetComponentsInChildren<Renderer>()) 
+		{
+			enemiesBounds.Encapsulate(r.bounds);
+		}	
+	}
+
+	private bool IsEnemiesReachedHBounds ()
+	{
+		if (enemiesBounds.center.x + enemiesBounds.extents.x + H_GAP/2 > Model.HBound ||
+			enemiesBounds.center.x - enemiesBounds.extents.x - H_GAP/2 < - Model.HBound)
+			return true;
+		return false;
+	}
+
+	private bool IsEnemiesReachedVBounds ()
+	{
+		if (transform.childCount > 0 && enemiesBounds.center.y - enemiesBounds.extents.y - V_GAP/2 < Model.PLAYERS_START_POS.y)
+			return true;
+		return false;
+	}
+
+	private void MoveEnemiesToNextLine ()
+	{
+		transform.position = new Vector2 (transform.position.x, transform.position.y - V_GAP);
+		directionVector.x *= -1;
+		speed++;
+		shootingInterval -= 0.1f;
+		Model.bulletsSpeed += 0.1f;
 	}
 }
