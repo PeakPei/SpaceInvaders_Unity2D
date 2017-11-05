@@ -32,6 +32,8 @@ public class GameManager : MonoBehaviour
 	private GameObject PlayerInstance;
 	private GameObject EnemiesControllerInstance;
 
+	private EnemiesController EnemiesControllerClass;
+
 	//Prefabs
 	public GameObject PlayerPrefab;
 	public GameObject EnemiesControllerPrefab;
@@ -95,11 +97,11 @@ public class GameManager : MonoBehaviour
 		}
 
 		btnStart.onClick.AddListener (GameSetup);
-		btnHighScores.onClick.AddListener (ShowHighScores);
+		btnHighScores.onClick.AddListener (OnBtnHighScores);
 		btnMainMenu.onClick.AddListener (ResetGame);
 		btnMainMenuFromHighScores.onClick.AddListener (ResetGame);
 		btnNextLevel.onClick.AddListener(NextLevel);
-		btnAddNewResult.onClick.AddListener(AddNewResult);
+		btnAddNewResult.onClick.AddListener(AddNewHighScore);
 
 		ResetGame();
 	}
@@ -146,7 +148,7 @@ public class GameManager : MonoBehaviour
 			case GameState.PAUSE:
 				GameScreen.SetActive(true);
 				PauseScreen.SetActive(true);
-				if (EnemiesControllerInstance) EnemiesControllerInstance.GetComponent<EnemiesController>().PauseEnemies (isGamePaused);
+				if (EnemiesControllerInstance) EnemiesControllerClass.PauseEnemies (isGamePaused);
 				break;
 			case GameState.GAME:
 				GameScreen.SetActive(true);
@@ -175,16 +177,21 @@ public class GameManager : MonoBehaviour
 		if (!PlayerInstance) PlayerInstance = Instantiate (PlayerPrefab, Model.PLAYERS_START_POS, Quaternion.identity, GameScreen.transform);
 		else 				 PlayerInstance.transform.position = Model.PLAYERS_START_POS;
 
-		if (!EnemiesControllerInstance) EnemiesControllerInstance = Instantiate (EnemiesControllerPrefab, Vector2.zero, Quaternion.identity, GameScreen.transform);
-		else 							EnemiesControllerInstance.transform.position = Vector2.zero;
+		if (!EnemiesControllerInstance) 
+		{
+			EnemiesControllerInstance = Instantiate (EnemiesControllerPrefab, Vector2.zero, Quaternion.identity, GameScreen.transform);
+			EnemiesControllerClass 	  = EnemiesControllerInstance.GetComponent<EnemiesController>();
+		}
+		else
+			EnemiesControllerInstance.transform.position = Vector2.zero;
 
 		SetGameState (GameState.MAIN);
 	}	
 
 	private void GameSetup ()
 	{
-		EnemiesControllerInstance.GetComponent<EnemiesController>().UpdateEnemiesNumber (level);
-		EnemiesControllerInstance.GetComponent<EnemiesController>().CreateEnemies ();
+		EnemiesControllerClass.UpdateEnemiesNumber (level);
+		EnemiesControllerClass.CreateEnemies ();
 
 		StopAllCoroutines();
 		StartCoroutine(StartNewGame());
@@ -198,21 +205,15 @@ public class GameManager : MonoBehaviour
 
 		SetGameState (GameState.GAME);
 
-		EnemiesControllerInstance.GetComponent<EnemiesController>().StartShooting ();
-		EnemiesControllerInstance.GetComponent<EnemiesController>().MotherShipAppearence();
+		EnemiesControllerClass.StartShooting ();
+		EnemiesControllerClass.MotherShipAppearence();
 	}
 
-	public void NextLevel()
+	private void NextLevel()
 	{
 		level++;
 		UpdateLevel ();
 		GameSetup();
-	}
-
-	private void ShowHighScores ()
-	{
-		SetGameState(GameState.HIGH_SCORES);
-		GetResultsList ();
 	}
 
 	private void UpdateLevel ()
@@ -253,7 +254,7 @@ public class GameManager : MonoBehaviour
 		StopAllCoroutines();
 		SetGameState(GameState.WIN_LOSE);	
 
-		EnemiesControllerInstance.GetComponent<EnemiesController>().DestroyAllEnemiesAndBullets ();
+		EnemiesControllerClass.DestroyAllEnemiesAndBullets ();
 
 		btnNextLevel.gameObject.SetActive(isWin);
 		Playername.gameObject.SetActive(!isWin);
@@ -265,20 +266,29 @@ public class GameManager : MonoBehaviour
 			WinGameOver.text = GAME_OVER_TEXT;
 	}
 
-	void GetResultsList (string data = "") 
+	private void OnBtnHighScores ()
 	{
-		HighScoresListNames.text = "Loading...";
-		HighScoresListNames.alignment = TextAnchor.MiddleRight;
-		HighScoresListScores.text = "";
+		ShowHighScoresScreen();
+		GetHighScoresList ();
+	}
 
-		WWW www = new WWW(url);
-        StartCoroutine(WaitForRequest(www, ShowResultsList));
-    }
-
-	void ShowResultsList (string data) 
+	private void ShowHighScoresScreen ()
 	{
 		SetGameState(GameState.HIGH_SCORES);
-		
+
+		HighScoresListNames.text = "Loading...";
+		HighScoresListNames.alignment = TextAnchor.MiddleRight;
+		HighScoresListScores.text = "";		
+	}
+
+	private void GetHighScoresList (string data = "") 
+	{
+		WWW www = new WWW(url);
+        StartCoroutine(WaitForRequest(www, ShowHighScoresList));
+    }
+
+	private void ShowHighScoresList (string data) 
+	{
 		HighScoresListNames.text = "";
 		HighScoresListNames.alignment = TextAnchor.MiddleLeft;
 
@@ -293,14 +303,15 @@ public class GameManager : MonoBehaviour
 		}
     }
 
-	void AddNewResult () 
+	private void AddNewHighScore () 
 	{
 		WWWForm form = new WWWForm();
     	form.AddField("name", Playername.text);
         form.AddField("score", score.ToString());
         WWW www = new WWW(url, form);
 
-        StartCoroutine(WaitForRequest(www, GetResultsList));
+        StartCoroutine(WaitForRequest(www, GetHighScoresList));
+		ShowHighScoresScreen();
     }
 
     IEnumerator WaitForRequest(WWW www, Action<string> callback)
