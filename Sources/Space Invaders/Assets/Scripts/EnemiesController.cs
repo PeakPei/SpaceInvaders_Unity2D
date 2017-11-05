@@ -82,10 +82,10 @@ public class EnemiesController : MonoBehaviour
 
 			if (Mothership) 
 			{
-				float mothershipWidth = Mothership.GetComponent<SpriteRenderer> ().bounds.extents.x;
+				Bounds mothershipBounds = Mothership.GetComponent<SpriteRenderer> ().bounds;
 
-				if (Mothership.transform.position.x + mothershipWidth > Model.HBound ||
-					Mothership.transform.position.x - mothershipWidth < Model.HBound)
+				if (Mothership.transform.position.x + mothershipBounds.extents.x > Model.HBound ||
+					Mothership.transform.position.x - mothershipBounds.extents.x < -Model.HBound)
 				{
 					CancelInvoke (MOTHERSHIP_MOVEMENT);
 					Destroy (Mothership);
@@ -140,14 +140,15 @@ public class EnemiesController : MonoBehaviour
 
 		int rand = Random.Range (0, 10);
 		if (rand < 4)
-		{
+		{	
+			Mothership = Instantiate (MotherShipPrefab, Vector2.zero, Quaternion.identity);
+
 			float dirRand = Random.Range (-1.0f, 1.0f);
 			motherShipDirectionVector = dirRand > 0 ? Vector2.right : Vector2.left;
-			
-			Mothership = Instantiate (MotherShipPrefab, 
-									 new Vector2 (dirRand > 0 ? -Model.HBound : Model.HBound, 
-									 			  transform.GetChild (0).transform.position.y + V_GAP), 
-									 Quaternion.identity);
+
+			float mothershipWidth = Mothership.GetComponent<SpriteRenderer> ().bounds.extents.x;
+			Mothership.transform.position = new Vector2 (dirRand > 0 ? -Model.HBound + mothershipWidth : Model.HBound - mothershipWidth, 
+									 			  transform.GetChild (0).transform.position.y + V_GAP);
 		}
 	}
 
