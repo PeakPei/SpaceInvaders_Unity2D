@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class EnemiesController : MonoBehaviour 
 {
@@ -26,16 +24,19 @@ public class EnemiesController : MonoBehaviour
 	
 	private float startX;
 	private float startY = 3.0f;
-	
+
+	private float mothershipWidth;
+
 	private Vector2 directionVector;
 	private Vector2 motherShipDirectionVector;
+	private Vector2 enemiesRelativeCenter;
 
 	private Bounds enemiesBounds;
 
 	private GameObject Mothership;
 
-	//Prefabs
-	public GameObject MotherShipPrefab;
+    //Prefabs
+    public GameObject MotherShipPrefab;
 	public GameObject Enemy1Prefab;
 	public GameObject Enemy2Prefab;
 	public GameObject Enemy3Prefab;
@@ -75,16 +76,12 @@ public class EnemiesController : MonoBehaviour
 
 		if (frameCounter%Model.ENEMIES_UPDATE_FRAMES_DELTA == 0)
 		{
-			UpdateBounds ();
-
-			if (IsEnemiesReachedHBounds()) MoveEnemiesToNextLine ();			
+			if (IsEnemiesReachedHBounds()) MoveEnemiesToNextLine ();	
 
 			if (Mothership) 
 			{
-				Bounds mothershipBounds = Mothership.GetComponent<SpriteRenderer> ().bounds;
-
-				if (Mothership.transform.position.x + mothershipBounds.extents.x > Model.HBound ||
-					Mothership.transform.position.x - mothershipBounds.extents.x < -Model.HBound)
+				if (Mothership.transform.position.x + mothershipWidth > Model.HBound ||
+					Mothership.transform.position.x - mothershipWidth < -Model.HBound)
 				{
 					CancelInvoke (MOTHERSHIP_MOVEMENT);
 					Destroy (Mothership);
@@ -101,6 +98,7 @@ public class EnemiesController : MonoBehaviour
 		{
 			GameObject prefab;
 
+			//will be changed when levels loading will be available
 			if (i < enemiesPerLine * ENEMIES_TYPE_4_LINES_NUM)
 				prefab = Enemy4Prefab;
 			else if (i < enemiesPerLine * (ENEMIES_TYPE_4_LINES_NUM + ENEMIES_TYPE_3_LINES_NUM))
@@ -112,6 +110,8 @@ public class EnemiesController : MonoBehaviour
 
 			Instantiate (prefab, new Vector2 (startX + i%enemiesPerLine * H_GAP, startY - i/enemiesPerLine * V_GAP), Quaternion.identity, transform);
 		}
+
+		UpdateBounds ();
 	}
 
 	public void StartShooting ()
@@ -123,7 +123,7 @@ public class EnemiesController : MonoBehaviour
 	private void Shooting ()
 	{
 		if (transform.childCount == 0) return;
-			
+		
 		transform.GetChild (Random.Range (0, transform.childCount - 1)).GetComponent<Enemy> ().canShoot = true;
 	}
 
@@ -141,11 +141,11 @@ public class EnemiesController : MonoBehaviour
 		if (rand < 4)
 		{	
 			Mothership = Instantiate (MotherShipPrefab, Vector2.zero, Quaternion.identity);
+			mothershipWidth = Mothership.GetComponent<SpriteRenderer> ().bounds.extents.x;
 
 			float dirRand = Random.Range (-1.0f, 1.0f);
 			motherShipDirectionVector = dirRand > 0 ? Vector2.right : Vector2.left;
 
-			float mothershipWidth = Mothership.GetComponent<SpriteRenderer> ().bounds.extents.x;
 			Mothership.transform.position = new Vector2 (dirRand > 0 ? -Model.HBound + mothershipWidth : Model.HBound - mothershipWidth, 
 									 			  transform.GetChild (0).transform.position.y + V_GAP);
 		}
@@ -189,19 +189,21 @@ public class EnemiesController : MonoBehaviour
 		{
 			enemiesBounds.Encapsulate(r.bounds);
 		}
+
+		enemiesRelativeCenter = enemiesBounds.center - transform.position;
 	}
 
 	private bool IsEnemiesReachedHBounds ()
 	{
-		if ((directionVector == Vector2.right && enemiesBounds.center.x + enemiesBounds.extents.x + H_GAP/2 > Model.HBound) ||
-			(directionVector == Vector2.left && enemiesBounds.center.x - enemiesBounds.extents.x - H_GAP/2 < - Model.HBound))
+		if ((directionVector == Vector2.right && transform.position.x + enemiesRelativeCenter.x + enemiesBounds.extents.x + H_GAP > Model.HBound) ||
+			(directionVector == Vector2.left && transform.position.x + enemiesRelativeCenter.x - enemiesBounds.extents.x - H_GAP < - Model.HBound))
 			return true;			
 		return false;
 	}
 
 	private bool IsEnemiesReachedVBounds ()
 	{
-		if (transform.childCount > 0 && enemiesBounds.center.y - enemiesBounds.extents.y - V_GAP/2 < Model.PLAYERS_START_POS.y)
+		if (transform.childCount > 0 && transform.position.y + enemiesRelativeCenter.y - enemiesBounds.extents.y - V_GAP < Model.PLAYERS_START_POS.y)
 			return true;
 		return false;
 	}

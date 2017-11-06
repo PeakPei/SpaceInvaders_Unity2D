@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour
     private const string LIVES_TEXT = "LIVES: ";
     private const string WIN_TEXT = "YOU WON!\n YOUR SCORE IS: ";
     private const string GAME_OVER_TEXT = "GAME OVER";
+	private const string START_NEW_GAME = "StartNewGame";
+	private const string UPDATE_ENEMIES = "UpdateEnemies";
 	private const string url = "http://space-invaders.bewebmaster.co.il/clients";
     private static GameManager instance = null;
 	private enum GameState {MAIN, COUNT_DOWN, PAUSE, GAME, WIN_LOSE, HIGH_SCORES};
@@ -194,7 +196,7 @@ public class GameManager : MonoBehaviour
 		EnemiesControllerClass.CreateEnemies ();
 
 		StopAllCoroutines();
-		StartCoroutine(StartNewGame());
+		StartCoroutine(START_NEW_GAME);
 	}
 
 	IEnumerator StartNewGame ()
@@ -235,6 +237,15 @@ public class GameManager : MonoBehaviour
 	{
 		score += points;
 		UpdateScore();
+
+		StopCoroutine(UPDATE_ENEMIES);
+		StartCoroutine(UPDATE_ENEMIES);
+	}
+
+	IEnumerator UpdateEnemies ()
+	{
+		yield return new WaitForSeconds(Model.EXPLOSION_TIME_OUT);
+		EnemiesControllerClass.UpdateBounds();
 	}
 
 	public void OnPlayerHit ()

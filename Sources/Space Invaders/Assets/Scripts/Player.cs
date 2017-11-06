@@ -35,9 +35,9 @@ public class Player : MonoBehaviour
 			return;
 		}
 		
-		if 	(Input.GetKey (KeyCode.RightArrow) && transform.position.x + spriteRenderer.bounds.extents.x < Model.HBound)
+		if 	(Input.GetKey (KeyCode.RightArrow) && transform.position.x + spriteRenderer.bounds.size.x < Model.HBound)
 			transform.Translate (Vector2.right * speed * Time.deltaTime);
-		else if (Input.GetKey (KeyCode.LeftArrow)  && transform.position.x - spriteRenderer.bounds.extents.x > -Model.HBound)
+		else if (Input.GetKey (KeyCode.LeftArrow)  && transform.position.x - spriteRenderer.bounds.size.x > -Model.HBound)
 			transform.Translate (Vector2.left * speed * Time.deltaTime);
 		
 		if (Input.GetKeyDown (KeyCode.Space))
