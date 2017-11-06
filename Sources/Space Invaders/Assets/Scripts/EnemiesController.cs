@@ -26,7 +26,7 @@ public class EnemiesController : MonoBehaviour
 	
 	private float startX;
 	private float startY = 3.0f;
-
+	
 	private Vector2 directionVector;
 	private Vector2 motherShipDirectionVector;
 
@@ -69,7 +69,7 @@ public class EnemiesController : MonoBehaviour
 		}
 	}
 
-	void LateUpdate()
+	void FixedUpdate()
 	{
 		if (GameManager.Instance.IsGamePaused) return;
 
@@ -77,8 +77,7 @@ public class EnemiesController : MonoBehaviour
 		{
 			UpdateBounds ();
 
-			if (IsEnemiesReachedHBounds()) MoveEnemiesToNextLine ();
-			if (IsEnemiesReachedVBounds()) GameManager.Instance.EndGame (false);
+			if (IsEnemiesReachedHBounds()) MoveEnemiesToNextLine ();			
 
 			if (Mothership) 
 			{
@@ -189,14 +188,14 @@ public class EnemiesController : MonoBehaviour
 		foreach (Renderer r in GetComponentsInChildren<Renderer>()) 
 		{
 			enemiesBounds.Encapsulate(r.bounds);
-		}	
+		}
 	}
 
 	private bool IsEnemiesReachedHBounds ()
 	{
-		if (enemiesBounds.center.x + enemiesBounds.extents.x + H_GAP/2 > Model.HBound ||
-			enemiesBounds.center.x - enemiesBounds.extents.x - H_GAP/2 < - Model.HBound)
-			return true;
+		if ((directionVector == Vector2.right && enemiesBounds.center.x + enemiesBounds.extents.x + H_GAP/2 > Model.HBound) ||
+			(directionVector == Vector2.left && enemiesBounds.center.x - enemiesBounds.extents.x - H_GAP/2 < - Model.HBound))
+			return true;			
 		return false;
 	}
 
@@ -210,9 +209,14 @@ public class EnemiesController : MonoBehaviour
 	private void MoveEnemiesToNextLine ()
 	{
 		transform.position = new Vector2 (transform.position.x, transform.position.y - V_GAP);
-		directionVector.x *= -1;
-		speed++;
-		shootingInterval -= 0.1f;
-		Model.bulletsSpeed += 0.1f;
+		
+		if (IsEnemiesReachedVBounds()) GameManager.Instance.EndGame (false); 
+		else
+		{
+			directionVector.x *= -1;
+			speed++;
+			shootingInterval -= 0.1f;
+			Model.bulletsSpeed += 0.1f;
+		}
 	}
 }
