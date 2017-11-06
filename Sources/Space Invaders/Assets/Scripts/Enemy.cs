@@ -3,11 +3,7 @@ using System.Collections;
 
 public class Enemy : MonoBehaviour 
 {
-	//Constants
-    private const float EXPLOSION_TIME_OUT = 0.5f;
-
-	//Variables
-    private bool isExplode = false;
+	private bool isExplode = false;
 	private int currentSpriteStateID = 0; //Enemies have two sprite states for "animation" when moving
 	private SpriteRenderer spriteRenderer;
 
@@ -56,6 +52,6 @@ public class Enemy : MonoBehaviour
     {
 		isExplode = true;
 		spriteRenderer.sprite = ExplosionSprite;
-		Destroy(gameObject, EXPLOSION_TIME_OUT);
+		Destroy(gameObject, Model.EXPLOSION_TIME_OUT);
     }
 }

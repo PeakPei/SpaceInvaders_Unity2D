@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public static class Model : object 
 {
@@ -9,6 +7,8 @@ public static class Model : object
 
 	public const int MOTHERSHIP_MIN_POINTS = 50;
 	public const int MOTHERSHIP_MAX_POINTS = MOTHERSHIP_MIN_POINTS * 2;
+
+	public const float EXPLOSION_TIME_OUT = .5f;
 	
     public const string PLAYER_TAG = "Player";
 	public const string ENEMIES_TAG = "Enemy";

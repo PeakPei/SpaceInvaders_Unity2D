@@ -43,15 +43,7 @@ public class Player : MonoBehaviour
 		if (Input.GetKeyDown (KeyCode.Space))
 			Instantiate(Bullet, new Vector2 (transform.position.x, transform.position.y), Quaternion.identity);
 	}	
-
-	void OnTriggerEnter2D (Collider2D other)
-	{
-		if (other.gameObject.CompareTag(Model.ENEMIES_TAG))
-		{
-			GameManager.Instance.EndGame (false);
-		}
-	}
-
+	
 	public void Explode ()
     {
 		StartCoroutine(EXPLOSION);
