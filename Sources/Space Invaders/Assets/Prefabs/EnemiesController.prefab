@@ -53,6 +53,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MotherShipPrefab: {fileID: 1769068933617362, guid: d26e6bc3df029f54bbe05f9886808f5b,
     type: 2}
+  EnemiesPrefabs:
+  - {fileID: 1777083369452004, guid: 59a46b4a8ced62c47a9f1078aaf0afab, type: 2}
+  - {fileID: 1790261505930116, guid: 2e3991f9cf1c54b4da2603d3fd542935, type: 2}
+  - {fileID: 1311634223611230, guid: 331fbc07502d0d64cbf0880df7203b70, type: 2}
+  - {fileID: 1777083369452004, guid: cef58182037ae94459ecfdd35b739775, type: 2}
   Enemy1Prefab: {fileID: 1777083369452004, guid: 59a46b4a8ced62c47a9f1078aaf0afab,
     type: 2}
   Enemy2Prefab: {fileID: 1790261505930116, guid: 2e3991f9cf1c54b4da2603d3fd542935,

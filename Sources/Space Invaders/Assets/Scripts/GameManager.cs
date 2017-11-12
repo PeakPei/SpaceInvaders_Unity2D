@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour 
 {
-	//Constants
+	#region Constants
 	private const float GAME_START_DELAY = 3.0f;
 	private const int LIVES_MAX_NUM = 3;
 	private const int MAX_HIGH_SCORES = 10;
@@ -18,11 +18,11 @@ public class GameManager : MonoBehaviour
 	private const string START_NEW_GAME = "StartNewGame";
 	private const string UPDATE_ENEMIES = "UpdateEnemies";
 	private const string url = "http://space-invaders.bewebmaster.co.il/clients";
-    private static GameManager instance = null;
 	private enum GameState {MAIN, COUNT_DOWN, PAUSE, GAME, WIN_LOSE, HIGH_SCORES};
+	#endregion
 		
-	//Variables
-	private bool isGamePaused = false;
+	
+	#region Variables	
     private bool isGameStartWaitingForDelay = false;
 
 	private int score;
@@ -35,11 +35,17 @@ public class GameManager : MonoBehaviour
 	private GameObject EnemiesControllerInstance;
 
 	private EnemiesController EnemiesControllerClass;
+	private static GameManager instance = null;
+	#endregion
 
-	//Prefabs
+
+	#region Prefabs
+	[Header("Prefabs")]
 	public GameObject PlayerPrefab;
 	public GameObject EnemiesControllerPrefab;
+	#endregion
 
+	[Header("Buttons")]
 	public Button btnStart;
 	public Button btnHighScores;
 	public Button btnNextLevel;
@@ -47,6 +53,7 @@ public class GameManager : MonoBehaviour
 	public Button btnAddNewResult;		
 	public Button btnMainMenuFromHighScores;
 
+	[Header("Text fields")]
 	public Text CountDown;
 	public Text Level;
 	public Text Score;
@@ -56,12 +63,26 @@ public class GameManager : MonoBehaviour
 	public Text HighScoresListScores;
 	public InputField Playername;
 	
+	[Header("Screens")]
 	public GameObject StartScreen;
-	public GameObject GameStartCountDown;
+	public GameObject CountDownScreen;
 	public GameObject PauseScreen;
 	public GameObject GameScreen;
 	public GameObject WinGameOverScreen;
 	public GameObject HighScoresScreen;
+	
+	
+	#region Properties
+	public static GameManager Instance
+	{
+		get 
+		{ 
+			if (instance == null)
+				instance = new GameObject ("GameManager").AddComponent<GameManager>();
+			return instance;
+		}
+	}
+	#endregion
 
 	[Serializable]
 	public class PlayersData
@@ -75,18 +96,7 @@ public class GameManager : MonoBehaviour
 		public string name;
 		public string score;
 	}
-    
-    public static GameManager Instance
-	{
-		get 
-		{ 
-			if (instance == null)
-				instance = new GameObject ("GameManager").AddComponent<GameManager>();
-			return instance;
-		}
-	}
 
-    public bool IsGamePaused { get {return isGamePaused;} }
 
     void Awake()
 	{
@@ -118,23 +128,25 @@ public class GameManager : MonoBehaviour
 		}
 		else if (Input.GetKeyDown (KeyCode.Escape) && GameScreen.activeSelf && !isGameStartWaitingForDelay)
 		{
-			isGamePaused = !isGamePaused;
+			Model.IsGamePaused = !Model.IsGamePaused;
 			
-			if (isGamePaused) SetGameState(GameState.PAUSE);
-			else 			  SetGameState(GameState.GAME);
+			if (Model.IsGamePaused) SetGameState(GameState.PAUSE);
+			else 			 		SetGameState(GameState.GAME);
+
+			if (EnemiesControllerInstance) EnemiesControllerClass.PauseEnemies (Model.IsGamePaused);
 		}
 	}
 
 	private void SetGameState (GameState state)
 	{
 		StartScreen.SetActive(false);
-		GameStartCountDown.SetActive(false);
+		CountDownScreen.SetActive(false);
 		PauseScreen.SetActive (false);
 		GameScreen.SetActive(false);
 		WinGameOverScreen.SetActive(false);
 		HighScoresScreen.SetActive(false);	
 
-		isGamePaused = true;
+		Model.IsGamePaused = true;
 
 		switch (state)
 		{
@@ -142,7 +154,7 @@ public class GameManager : MonoBehaviour
 				StartScreen.SetActive(true);	
 				break;
 			case GameState.COUNT_DOWN:
-				GameStartCountDown.SetActive(true);
+				CountDownScreen.SetActive(true);
 				GameScreen.SetActive(true);
 				isGameStartWaitingForDelay = true;
 				elapsedSecondsFromLevelStart = 0;
@@ -150,12 +162,11 @@ public class GameManager : MonoBehaviour
 			case GameState.PAUSE:
 				GameScreen.SetActive(true);
 				PauseScreen.SetActive(true);
-				if (EnemiesControllerInstance) EnemiesControllerClass.PauseEnemies (isGamePaused);
 				break;
 			case GameState.GAME:
 				GameScreen.SetActive(true);
 				isGameStartWaitingForDelay = false;
-				isGamePaused = false;
+				Model.IsGamePaused = false;
 				break;
 			case GameState.WIN_LOSE:
 				WinGameOverScreen.SetActive(true);
@@ -185,13 +196,14 @@ public class GameManager : MonoBehaviour
 			EnemiesControllerClass 	  = EnemiesControllerInstance.GetComponent<EnemiesController>();
 		}
 		else
-			EnemiesControllerInstance.transform.position = Vector2.zero;
+			EnemiesControllerClass.Reset();
 
 		SetGameState (GameState.MAIN);
 	}	
 
 	private void GameSetup ()
 	{
+		EnemiesControllerClass.Reset();
 		EnemiesControllerClass.UpdateEnemiesNumber (level);
 		EnemiesControllerClass.CreateEnemies ();
 

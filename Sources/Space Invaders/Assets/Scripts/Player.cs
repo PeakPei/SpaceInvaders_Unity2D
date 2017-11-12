@@ -3,16 +3,18 @@ using System.Collections;
 
 public class Player : MonoBehaviour 
 {
-	//Constants
+	#region Constants
 	private const float EXPLOSION_TIME_OUT = 0.5f;
 	private const float EXPLOSION_UPDATE_FRAMES_DELTA = 5;
     private const string EXPLOSION = "Explosion";
+	#endregion
 
-	//Variables
+	#region Variables
     private bool isExplode = false;
 	private int speed = 5;
 	private int frameCounter = 0;
 	private SpriteRenderer spriteRenderer;
+	#endregion
 
 	public Sprite RegSprite;
 	public Sprite ExplosionSprite;
@@ -25,7 +27,7 @@ public class Player : MonoBehaviour
 	
 	void Update () 
 	{
-		if (GameManager.Instance.IsGamePaused) return;
+		if (Model.IsGamePaused) return;
 
 		if (isExplode)
 		{
@@ -35,9 +37,9 @@ public class Player : MonoBehaviour
 			return;
 		}
 		
-		if 	(Input.GetKey (KeyCode.RightArrow) && transform.position.x + spriteRenderer.bounds.size.x < Model.HBound)
+		if 	(Input.GetKey (KeyCode.RightArrow) && transform.position.x + spriteRenderer.bounds.size.x < Model.ScreenLimit.x)
 			transform.Translate (Vector2.right * speed * Time.deltaTime);
-		else if (Input.GetKey (KeyCode.LeftArrow)  && transform.position.x - spriteRenderer.bounds.size.x > -Model.HBound)
+		else if (Input.GetKey (KeyCode.LeftArrow)  && transform.position.x - spriteRenderer.bounds.size.x > -Model.ScreenLimit.x)
 			transform.Translate (Vector2.left * speed * Time.deltaTime);
 		
 		if (Input.GetKeyDown (KeyCode.Space))

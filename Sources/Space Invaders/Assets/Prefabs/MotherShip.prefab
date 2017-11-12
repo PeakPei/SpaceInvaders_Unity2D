@@ -21,8 +21,8 @@ GameObject:
   - component: {fileID: 4560487689425322}
   - component: {fileID: 212941862743820220}
   - component: {fileID: 61793902750910544}
-  - component: {fileID: 82781782756501698}
   - component: {fileID: 114375463665184592}
+  - component: {fileID: 82781782756501698}
   m_Layer: 0
   m_Name: MotherShip
   m_TagString: Enemy
@@ -159,9 +159,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3ac7b76f5eceb74fb575ad198796ecf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMotherShip: 1
   canShoot: 0
-  points: 50
   StatesSprites:
   - {fileID: 21300000, guid: f8af163146ec55c4fbf297171b3bef4b, type: 3}
   ExplosionSprite: {fileID: 21300000, guid: c7e232e72ab92614dadeb9a2f173e1cd, type: 3}

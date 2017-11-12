@@ -2,20 +2,26 @@
 
 public class EnemiesController : MonoBehaviour 
 {
-	//Constants
-	private const float H_GAP = 0.8f;
-	private const float V_GAP = 0.7f;
+	#region Constants
+	private const float START_SHOOTING_INTERVAL = 2.0f;
 	private const float MOTHERSHIP_INTERVAL = 4.0f;
 	private const float MOTHERSHIP_SPEED_DELTA = 1.5f;	
-	private const int START_LINES = 5;
-	private const int START_ENEMIES_PER_LINE = 5;	
+
+	private const int START_SPEED = 15;
+	private const int START_LINES = 4;
+	private const int START_ENEMIES_PER_LINE = 4;	
 	private const int ENEMIES_TYPE_4_LINES_NUM = 1;
 	private const int ENEMIES_TYPE_3_LINES_NUM = 1;
-	private const int ENEMIES_TYPE_2_LINES_NUM = 2;
+	private const int ENEMIES_TYPE_2_LINES_NUM = 2;	
+	
     private const string MOTHERSHIP_MOVEMENT = "MotherShipMovement";
     private const string SHOOTING = "Shooting";    
+	
+	private static Vector2 ENEMIES_GAP = new Vector2 (0.8f, 0.7f);
+    #endregion
 
-	//Variables
+
+    #region Variables
     private int lines = START_LINES;
 	private int enemiesPerLine = START_ENEMIES_PER_LINE;
 	private int frameCounter = 0;
@@ -34,22 +40,22 @@ public class EnemiesController : MonoBehaviour
 	private Bounds enemiesBounds;
 
 	private GameObject Mothership;
+	#endregion
 
-    //Prefabs
+
+   	#region Prefabs
     public GameObject MotherShipPrefab;
-	public GameObject Enemy1Prefab;
-	public GameObject Enemy2Prefab;
-	public GameObject Enemy3Prefab;
-	public GameObject Enemy4Prefab;
+	public GameObject[] EnemiesPrefabs;
+	#endregion
 
 	void Awake () 
 	{
-		directionVector = Random.Range (-1.0f, 1.0f) > 0 ? Vector2.right : Vector2.left;
+		Reset();
 	}
 	
 	void Update () 
 	{
-		if (GameManager.Instance.IsGamePaused) return;
+		if (Model.IsGamePaused) return;
 
 		if (transform.childCount == 0 && !Mothership)
 			GameManager.Instance.EndGame (true);
@@ -72,7 +78,7 @@ public class EnemiesController : MonoBehaviour
 
 	void FixedUpdate()
 	{
-		if (GameManager.Instance.IsGamePaused) return;
+		if (Model.IsGamePaused) return;
 
 		if (frameCounter%Model.ENEMIES_UPDATE_FRAMES_DELTA == 0)
 		{
@@ -80,8 +86,8 @@ public class EnemiesController : MonoBehaviour
 
 			if (Mothership) 
 			{
-				if (Mothership.transform.position.x + mothershipWidth > Model.HBound ||
-					Mothership.transform.position.x - mothershipWidth < -Model.HBound)
+				if (Mothership.transform.position.x + mothershipWidth > Model.ScreenLimit.x ||
+					Mothership.transform.position.x - mothershipWidth < -Model.ScreenLimit.x)
 				{
 					CancelInvoke (MOTHERSHIP_MOVEMENT);
 					Destroy (Mothership);
@@ -90,9 +96,22 @@ public class EnemiesController : MonoBehaviour
 		}		
 	}
 
+	public void Reset ()
+	{
+		directionVector = Random.Range (-1.0f, 1.0f) > 0 ? Vector2.right : Vector2.left;
+
+		frameCounter = 0;
+		speed = START_SPEED;
+		shootingInterval = START_SHOOTING_INTERVAL;
+
+		Model.ResetBulletsSpeed();
+
+		transform.position = Vector2.zero;
+	}
+
 	public void CreateEnemies ()
 	{
-		startX =  - ( (enemiesPerLine - 1) * H_GAP)/2;
+		startX =  - ( (enemiesPerLine - 1) * ENEMIES_GAP.x)/2;
 
 		for (int i = 0; i < enemiesPerLine * lines; i++)
 		{
@@ -100,15 +119,15 @@ public class EnemiesController : MonoBehaviour
 
 			//will be changed when levels loading will be available
 			if (i < enemiesPerLine * ENEMIES_TYPE_4_LINES_NUM)
-				prefab = Enemy4Prefab;
+				prefab = EnemiesPrefabs[3];
 			else if (i < enemiesPerLine * (ENEMIES_TYPE_4_LINES_NUM + ENEMIES_TYPE_3_LINES_NUM))
-				prefab = Enemy3Prefab;
+				prefab = EnemiesPrefabs[2];
 			else if (i < enemiesPerLine * (ENEMIES_TYPE_4_LINES_NUM + ENEMIES_TYPE_3_LINES_NUM + ENEMIES_TYPE_2_LINES_NUM))
-			 	prefab = Enemy2Prefab;
+			 	prefab = EnemiesPrefabs[1];
 			else
-				prefab = Enemy1Prefab;
+				prefab = EnemiesPrefabs[0];
 
-			Instantiate (prefab, new Vector2 (startX + i%enemiesPerLine * H_GAP, startY - i/enemiesPerLine * V_GAP), Quaternion.identity, transform);
+			Instantiate (prefab, new Vector2 (startX + i%enemiesPerLine * ENEMIES_GAP.x, startY - i/enemiesPerLine * ENEMIES_GAP.y), Quaternion.identity, transform);
 		}
 
 		UpdateBounds ();
@@ -135,7 +154,7 @@ public class EnemiesController : MonoBehaviour
 
 	private void MotherShipMovement ()
 	{
-		if (Mothership || GameManager.Instance.IsGamePaused) return;
+		if (Mothership || Model.IsGamePaused) return;
 
 		int rand = Random.Range (0, 10);
 		if (rand < 4)
@@ -146,8 +165,8 @@ public class EnemiesController : MonoBehaviour
 			float dirRand = Random.Range (-1.0f, 1.0f);
 			motherShipDirectionVector = dirRand > 0 ? Vector2.right : Vector2.left;
 
-			Mothership.transform.position = new Vector2 (dirRand > 0 ? -Model.HBound + mothershipWidth : Model.HBound - mothershipWidth, 
-									 			  transform.GetChild (0).transform.position.y + V_GAP);
+			Mothership.transform.position = new Vector2 (dirRand > 0 ? -Model.ScreenLimit.x + mothershipWidth : Model.ScreenLimit.x - mothershipWidth, 
+									 			  		 transform.GetChild (0).transform.position.y + ENEMIES_GAP.y);
 		}
 	}
 
@@ -195,22 +214,22 @@ public class EnemiesController : MonoBehaviour
 
 	private bool IsEnemiesReachedHBounds ()
 	{
-		if ((directionVector == Vector2.right && transform.position.x + enemiesRelativeCenter.x + enemiesBounds.extents.x + H_GAP > Model.HBound) ||
-			(directionVector == Vector2.left && transform.position.x + enemiesRelativeCenter.x - enemiesBounds.extents.x - H_GAP < - Model.HBound))
+		if ((directionVector == Vector2.right && transform.position.x + enemiesRelativeCenter.x + enemiesBounds.extents.x + ENEMIES_GAP.x > Model.ScreenLimit.x) ||
+			(directionVector == Vector2.left && transform.position.x + enemiesRelativeCenter.x - enemiesBounds.extents.x - ENEMIES_GAP.x < - Model.ScreenLimit.x))
 			return true;			
 		return false;
 	}
 
 	private bool IsEnemiesReachedVBounds ()
 	{
-		if (transform.childCount > 0 && transform.position.y + enemiesRelativeCenter.y - enemiesBounds.extents.y - V_GAP < Model.PLAYERS_START_POS.y)
+		if (transform.childCount > 0 && transform.position.y + enemiesRelativeCenter.y - enemiesBounds.extents.y - ENEMIES_GAP.y < Model.PLAYERS_START_POS.y)
 			return true;
 		return false;
 	}
 
 	private void MoveEnemiesToNextLine ()
 	{
-		transform.position = new Vector2 (transform.position.x, transform.position.y - V_GAP);
+		transform.position = new Vector2 (transform.position.x, transform.position.y - ENEMIES_GAP.y);
 		
 		if (IsEnemiesReachedVBounds()) GameManager.Instance.EndGame (false); 
 		else

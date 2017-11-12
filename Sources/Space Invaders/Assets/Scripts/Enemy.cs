@@ -3,13 +3,19 @@ using System.Collections;
 
 public class Enemy : MonoBehaviour 
 {
+	#region Variables
 	private bool isExplode = false;
 	private int currentSpriteStateID = 0; //Enemies have two sprite states for "animation" when moving
 	private SpriteRenderer spriteRenderer;
-
-	public bool isMotherShip = false;
+	
+	[SerializeField]
+	private bool isMotherShip = false;
+	[SerializeField]
+	private int points;
+	
 	public bool canShoot = false;
-	public int points;
+	#endregion
+	
 
 	public Sprite[] StatesSprites;
 	public Sprite ExplosionSprite;

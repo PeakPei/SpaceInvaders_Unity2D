@@ -1240,7 +1240,7 @@ MonoBehaviour:
   HighScoresListScores: {fileID: 1343642715}
   Playername: {fileID: 1542401052}
   StartScreen: {fileID: 17800753}
-  GameStartCountDown: {fileID: 1548800341}
+  CountDownScreen: {fileID: 1548800341}
   PauseScreen: {fileID: 1685319883}
   GameScreen: {fileID: 1152922741}
   WinGameOverScreen: {fileID: 632941034}
@@ -2555,7 +2555,7 @@ GameObject:
   - component: {fileID: 1548800344}
   - component: {fileID: 1548800343}
   m_Layer: 5
-  m_Name: GameStartCounter
+  m_Name: CountDownScreen
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
